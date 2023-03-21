@@ -66,7 +66,7 @@ class FilmrControllerTest {
         NotFoundException e = assertThrows(
                 NotFoundException.class, () -> filmController.updateFilm(film));
 
-        assertEquals("404 NOT_FOUND \"Film don't find\"", e.getMessage());
+        assertEquals("404 NOT_FOUND \"Film with name = \"nisi eiusmod\" don't find\"", e.getMessage());
         assertEquals(0,
                 filmController.getAllFIlms().size(),
                 "Size Equal Test");
