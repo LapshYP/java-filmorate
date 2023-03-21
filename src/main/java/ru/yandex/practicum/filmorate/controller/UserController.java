@@ -22,7 +22,6 @@ public class UserController {
     @Autowired
     UserServiceImpl userServiceImpl = new UserServiceImpl();
 
-
     @GetMapping
     public List<User> getAllUser() {
         log.debug("There is {} user in filmorate", userServiceImpl.getAllUsers().size());
