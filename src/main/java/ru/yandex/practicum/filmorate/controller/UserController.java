@@ -19,8 +19,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+   public UserServiceImpl userServiceImpl;
+
     @Autowired
-    UserServiceImpl userServiceImpl = new UserServiceImpl();
+    public UserController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
+    }
 
     @GetMapping
     public List<User> getAllUser() {
@@ -34,7 +39,7 @@ public class UserController {
     @PostMapping
     public @Valid User addUser(@Valid @RequestBody User user) {
 
-        @Valid User userToAdd = userServiceImpl.addUsers(user);
+        User userToAdd = userServiceImpl.addUsers(user);
         log.debug("user with name = \"{}\"  added", user.getName());
         return userToAdd;
     }
@@ -42,20 +47,8 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
 
-        @Valid User updetedUser = userServiceImpl.updateUsers(user);
+        User updetedUser = userServiceImpl.updateUsers(user);
         log.debug("user with name = \"{}\" updated", user.getName());
         return updetedUser;
     }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
-    }
-}
+ }

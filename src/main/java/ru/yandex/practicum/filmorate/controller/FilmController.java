@@ -19,8 +19,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+
+    private FilmServiceImpl filmServiceImpl;
+
     @Autowired
-    FilmServiceImpl filmServiceImpl = new FilmServiceImpl();
+    public FilmController(FilmServiceImpl filmServiceImpl) {
+        this.filmServiceImpl = filmServiceImpl;
+    }
+
 
     @GetMapping
     public List<Film> getAllFIlms() {
@@ -35,27 +41,15 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        @Valid Film filmToAdd = filmServiceImpl.addFilms(film);
+        Film filmToAdd = filmServiceImpl.addFilms(film);
         log.debug("Film with name = \"{}\"  added", filmToAdd.getName());
         return filmToAdd;
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        @Valid Film filmToUpdate = filmServiceImpl.updateFilm(film);
+        Film filmToUpdate = filmServiceImpl.updateFilm(film);
         log.debug("Film with name = \"{}\"  updated", filmToUpdate.getName());
         return filmToUpdate;
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
     }
 }

@@ -9,9 +9,9 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
-@Builder
 @NoArgsConstructor
 @ToString
+@Builder
 public class User {
 
     int id;
