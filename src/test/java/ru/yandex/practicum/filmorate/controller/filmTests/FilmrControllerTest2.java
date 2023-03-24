@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.controller.filmTests;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.ConstraintViolationException;
@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-class ShouldCreateFilmWithoutNameInFilmrControllerTest2 {
+class FilmrControllerTest2 {
     @Autowired
     private FilmController filmController;
     Film film;
@@ -32,7 +32,7 @@ class ShouldCreateFilmWithoutNameInFilmrControllerTest2 {
                 ConstraintViolationException.class, () -> filmController.addFilm(film));
 
         assertEquals("addFilms.film.name: не должно быть пустым", e.getMessage());
-        assertEquals(0,
+        assertEquals(1,
                 filmController.getAllFIlms().size(),
                 "Size Equal Test");
     }

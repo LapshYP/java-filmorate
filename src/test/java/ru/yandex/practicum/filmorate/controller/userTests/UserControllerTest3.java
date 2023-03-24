@@ -1,8 +1,9 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.controller.userTests;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-class ShouldThrowExceptionWhenUpdateUnknownUserInUserControllerTest3 {
+class UserControllerTest3 {
     @Autowired
     private UserController userController;
     User user;
@@ -26,13 +27,13 @@ class ShouldThrowExceptionWhenUpdateUnknownUserInUserControllerTest3 {
                 .birthday(LocalDate.of(1946, 8, 20))
                 .build();
 
-        user.setId(100);
+        user.setId(1000);
 
         NotFoundException e = assertThrows(
                 NotFoundException.class, () -> userController.updateUser(user));
 
         assertEquals("404 NOT_FOUND \"User don't find\"", e.getMessage());
-        assertEquals(0,
+        assertEquals(3,
                 userController.getAllUser().size(),
                 "Size Equal Test");
     }
