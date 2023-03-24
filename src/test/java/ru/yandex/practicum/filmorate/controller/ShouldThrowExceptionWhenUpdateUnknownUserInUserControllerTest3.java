@@ -1,21 +1,16 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 class ShouldThrowExceptionWhenUpdateUnknownUserInUserControllerTest3 {
     @Autowired
@@ -41,5 +36,4 @@ class ShouldThrowExceptionWhenUpdateUnknownUserInUserControllerTest3 {
                 userController.getAllUser().size(),
                 "Size Equal Test");
     }
-
 }
