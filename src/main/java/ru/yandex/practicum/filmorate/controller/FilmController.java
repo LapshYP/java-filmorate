@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/films")
 public class FilmController {
 
-    private FilmServiceImpl filmServiceImpl;
+    private final FilmServiceImpl filmServiceImpl;
 
     @Autowired
     public FilmController(FilmServiceImpl filmServiceImpl) {

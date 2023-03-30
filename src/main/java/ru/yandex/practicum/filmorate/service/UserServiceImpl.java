@@ -14,7 +14,7 @@ import java.util.HashMap;
 @Service
 @Validated
 public class UserServiceImpl implements UserService {
-    public HashMap<Integer, User> userHashMap = new HashMap<>();
+    private HashMap<Integer, User> userHashMap = new HashMap<>();
     private static int id = 1;
 
     @Override

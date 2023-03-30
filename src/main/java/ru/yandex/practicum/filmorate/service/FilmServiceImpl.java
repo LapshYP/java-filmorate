@@ -14,7 +14,8 @@ import java.util.HashMap;
 @Service
 @Validated
 public class FilmServiceImpl implements FilmService {
-    public HashMap<Integer, Film> filmHashMap = new HashMap<>();
+    private
+    HashMap<Integer, Film> filmHashMap = new HashMap<>();
     private static int id = 1;
 
     @Override

@@ -8,10 +8,9 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-@Data
+@Data //Equivalent to @Getter @Setter @RequiredArgsConstructor @ToString @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Builder
 public class Film {
     int id;
