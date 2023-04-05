@@ -2,17 +2,13 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,16 +23,43 @@ public class FilmController {
         this.filmServiceImpl = filmServiceImpl;
     }
 
+    @GetMapping("/{filmId}")
+    public Film findUserById(@PathVariable int filmId) {
+        Film filmById = filmServiceImpl.getFilmById(filmId);
+        log.debug("Film with id = \"{}\" ", filmId);
+        return filmById;
+    }
+
+    @PutMapping("/{filmId}/like/{userId}")
+    public Film addLike(@PathVariable int filmId, @PathVariable int userId) {
+        log.debug("Film with id = \"{}\"  added like to film with id = \"{}\" ", filmId, userId);
+        return filmServiceImpl.addLike(filmId, userId);
+    }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    public Film removeLike(@PathVariable int filmId, @PathVariable int userId) {
+        log.debug("Film with id = \"{}\" removed like from film with id = \"{}\" ", filmId, userId);
+        return filmServiceImpl.removeLike(filmId, userId);
+    }
+
+    @GetMapping("/popular")
+    public Set<Film> popularFilmsCount(@RequestParam(defaultValue = "10") int count) {
+        Set<Film> popularFilms = filmServiceImpl.getPopularFilms(count);
+        log.debug("list films by likes");
+
+        return popularFilms;
+    }
 
     @GetMapping
     public List<Film> getAllFIlms() {
-
-        log.debug("There is {} films in filmorate", filmServiceImpl.getAllFilms().size());
-
-        return filmServiceImpl.getAllFilms()
+        List<Film> collect = filmServiceImpl
+                .getAllFilms()
                 .values()
                 .stream()
                 .collect(Collectors.toList());
+        log.debug("There is {} films in filmorate", filmServiceImpl.getAllFilms().size());
+
+        return collect;
     }
 
     @PostMapping
