@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,7 +37,6 @@ class UserControllerTest {
                 .releaseDate(LocalDate.of(1967, 3, 25))
                 .duration(100)
                 .build();
-
         user = User.builder()
                 .login("dolore")
                 .name("Nick Name")
@@ -47,7 +45,6 @@ class UserControllerTest {
                 .build();
 
     }
-
 
     @Test
     public void shouldCreateUser() {
@@ -117,7 +114,6 @@ class UserControllerTest {
 
         User addFriends = userController.addFriends(user.getId(), user1.getId());
 
-
         //при добавлении в друзьях должен быть юзер с id от user1
         Set<Integer> integerSet = new HashSet<>();
         integerSet.add(user1.getId());
@@ -126,7 +122,7 @@ class UserControllerTest {
 
         Set<User> userSet = new HashSet<>();
         userSet.add(user);
-        assertEquals(userSet , userController.findUserFriendsById(user1.getId()),
+        assertEquals(userSet, userController.findUserFriendsById(user1.getId()),
                 "Equal Test");
 
         User deliteFriend = userController.removeFriends(user.getId(), user1.getId());
@@ -134,5 +130,4 @@ class UserControllerTest {
         assertEquals(integerSet, addFriends.getFriends(),
                 "Equal Test");
     }
-
 }
