@@ -7,7 +7,6 @@ import org.springframework.web.server.ResponseStatusException;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class NotFoundException extends ResponseStatusException {
     public NotFoundException(HttpStatus status, String message) {
-
         super(status, message);
     }
 
