@@ -21,6 +21,7 @@ class UserControllerTest {
 
     @Autowired
     private UserController userController;
+
     private Film film;
     private User user;
 
