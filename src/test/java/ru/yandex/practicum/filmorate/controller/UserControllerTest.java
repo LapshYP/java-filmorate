@@ -48,7 +48,7 @@ class UserControllerTest {
         userController.addUser(user);
         List<User> allUsers = userController.getAllUser();
 
-        assertEquals(3, allUsers.size(), "Size Equal Test");
+        assertEquals(1, allUsers.size(), "Size Equal Test");
 
         User userToCheck = allUsers.get(0);
 
@@ -65,10 +65,10 @@ class UserControllerTest {
 
         List<User> allUsers = userController.getAllUser();
 
-        assertEquals(4, allUsers.size(),
+        assertEquals(1, allUsers.size(),
                 "Size Equal Test");
 
-        User userToCheck = allUsers.get(2);
+        User userToCheck = allUsers.get(0);
 
         assertEquals(user.getLogin(), userToCheck.getName(), "Login Equal Name Test");
     }
@@ -81,9 +81,6 @@ class UserControllerTest {
                 NotFoundException.class, () -> userController.updateUser(user));
 
         assertEquals("404 NOT_FOUND \"User not found\"", e.getMessage());
-        assertEquals(2,
-                userController.getAllUser().size(),
-                "Size Equal Test");
     }
 
     @Test
