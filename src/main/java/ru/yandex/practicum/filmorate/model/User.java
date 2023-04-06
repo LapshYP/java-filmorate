@@ -24,6 +24,7 @@ public class User {
     String name;
     @PastOrPresent
     LocalDate birthday;
+    @Builder.Default
     Set<Integer> friends = new TreeSet<>();
 
 }

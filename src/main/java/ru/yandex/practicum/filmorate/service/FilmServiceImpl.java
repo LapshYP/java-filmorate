@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @Service
 @Validated
 public class FilmServiceImpl implements FilmService {
-    FilmStorageImpl filmStorage;
-    UserStorageImpl userStorage;
+    private final FilmStorageImpl filmStorage;
+    private final UserStorageImpl userStorage;
 
     @Autowired
     public FilmServiceImpl(FilmStorageImpl filmStorage, UserStorageImpl userStorage) {

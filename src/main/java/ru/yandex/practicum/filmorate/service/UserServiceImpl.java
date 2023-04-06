@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @Validated
 public class UserServiceImpl implements UserService {
-    UserStorageImpl userStorage;
+    private final UserStorageImpl userStorage;
 
     @Autowired
     public UserServiceImpl(UserStorageImpl userStorage) {

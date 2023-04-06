@@ -27,5 +27,6 @@ public class Film {
     LocalDate releaseDate;
     @Positive
     int duration;
+    @Builder.Default
     Set<Integer> likes = new TreeSet<>();
 }
