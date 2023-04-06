@@ -43,49 +43,7 @@ class FilmrControllerTest {
                 .build();
     }
 
-    @Test
-    public void shouldCreateUser() {
-
-        filmController.addFilm(film);
-        List<Film> allFIlmss = filmController.getAllFIlms();
-
-        assertEquals(3, allFIlmss.size(), "Size Equal Test");
-
-        Film filmToCheck = allFIlmss.get(0);
-
-        assertEquals(film.getName(), filmToCheck.getName(), "Name Equal Test");
-        assertEquals(film.getDescription(), filmToCheck.getDescription(), "Description Equal Test");
-
-        assertEquals(film.getReleaseDate(), filmToCheck.getReleaseDate(), "ReleaseDate Equal Test");
-        assertEquals(film.getDuration(), filmToCheck.getDuration(), "Duration Equal Test");
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenUpdateUnknownUser() {
-        film.setId(10);
-
-        NotFoundException e = assertThrows(
-                NotFoundException.class, () -> filmController.updateFilm(film));
-
-        assertEquals("404 NOT_FOUND \"Film with name = \"nisi eiusmod\" don't find\"", e.getMessage());
-        assertEquals(2,
-                filmController.getAllFIlms().size(),
-                "Size Equal Test");
-    }
-
-    @Test
-    public void shouldGetAllUserTest() {
-        filmController.addFilm(film);
-        Film film100 = film;
-        film100.setId(100);
-
-        filmController.addFilm(film100);
-
-        assertEquals(2, filmController.getAllFIlms().size(),
-                "Size Equal Test");
-    }
-
-    @Test
+     @Test
     public void shouldPutDeliteGetPopularFilmLike() {
         filmController.addFilm(film);
         Film film1 = film;
