@@ -4,18 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-//@RunWith(SpringRunner.class)
 @SpringBootTest
 class FilmrControllerTest {
 
@@ -43,7 +39,7 @@ class FilmrControllerTest {
                 .build();
     }
 
-     @Test
+    @Test
     public void shouldPutDeliteGetPopularFilmLike() {
         filmController.addFilm(film);
         Film film1 = film;
