@@ -30,7 +30,6 @@ public class UserStorageImpl implements UserStorage {
 
     public User getUserFromRepoById(int userId) {
         User user = userHashMap.get(userId);
-        System.out.println("");
         if (user == null) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "User with this ID dont't found");
         }

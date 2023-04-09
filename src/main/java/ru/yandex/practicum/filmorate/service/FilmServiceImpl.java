@@ -67,7 +67,7 @@ public class FilmServiceImpl implements FilmService {
         Film filmToUpdate = filmStorage.getFilmFromRepoById(filmId);
         Set<Integer> likes = filmToUpdate.getLikes();
         likes.add(userId);
-        filmToUpdate.setLikes(likes);
+//       filmToUpdate.setLikes(likes);
         return filmToUpdate;
     }
 

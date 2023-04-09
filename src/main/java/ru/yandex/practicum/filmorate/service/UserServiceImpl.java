@@ -123,7 +123,6 @@ public class UserServiceImpl implements UserService {
         userFriendsCopy.retainAll(otherUserFriends);
         Set<User> userSet = new HashSet<>();
         userFriendsCopy
-                .stream()
                 .forEach(integer -> userSet.add(userStorage.getUserFromRepoById(integer)));
         return userSet;
     }

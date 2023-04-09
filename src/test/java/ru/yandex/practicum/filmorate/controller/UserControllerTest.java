@@ -26,7 +26,7 @@ class UserControllerTest {
     @BeforeEach
     public void createController() {
         film = Film.builder()
-                .name("nisi eiusmod")
+                .name("Nisi Eiusmod")
                 .description("adipisicing")
                 .releaseDate(LocalDate.of(1967, 3, 25))
                 .duration(100)
@@ -45,6 +45,7 @@ class UserControllerTest {
         userController.addUser(user);
         User user1 = new User();
         user1.setLogin("login");
+        user1.setName("Name Surname");
         userController.addUser(user1);
         user.setFriends(new HashSet<>());
         user1.setFriends(new HashSet<>());

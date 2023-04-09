@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +26,8 @@ public class UserController {
 
     @GetMapping
     public List<User> getAllUser() {
-        List<User> userList = userServiceImpl.getAllUsers().values().stream().collect(Collectors.toList());
+        var users = userServiceImpl.getAllUsers();
+        List<User> userList = new ArrayList<>(users.values());
         log.debug("There are {} users in filmorate", userServiceImpl.getAllUsers().size());
         return userList;
     }

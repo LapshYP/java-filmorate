@@ -10,7 +10,7 @@ import java.util.HashMap;
 @Repository
 public class FilmStorageImpl implements FilmStorage {
 
-    private HashMap<Integer, Film> filmStore = new HashMap<>();
+    private final HashMap<Integer, Film> filmStore = new HashMap<>();
 
     @Override
     public Film addFilmToRepo(Film film) {
