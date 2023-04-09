@@ -9,7 +9,7 @@ public class NameValidator implements ConstraintValidator<ValidName, String> {
     }
     @Override
     public boolean isValid(String username, ConstraintValidatorContext constraintValidatorContext) {
-        if (username==null || username=="")
+        if (username==null || username.equals(""))
         {
             return true;
         } else return username.matches("^(?=\\s*\\S).*$");
