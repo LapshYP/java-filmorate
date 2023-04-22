@@ -1,17 +1,21 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.ValidDate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Builder
 public class Film {
     int id;
@@ -23,4 +27,6 @@ public class Film {
     LocalDate releaseDate;
     @Positive
     int duration;
-  }
+    @Builder.Default
+    Set<Integer> likes = new TreeSet<>();
+}

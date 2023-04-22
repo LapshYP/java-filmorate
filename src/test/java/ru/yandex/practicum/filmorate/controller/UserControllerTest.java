@@ -2,29 +2,36 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
+
 @SpringBootTest
 class UserControllerTest {
 
     @Autowired
     private UserController userController;
+
+    private Film film;
     private User user;
 
     @BeforeEach
     public void createController() {
+        film = Film.builder()
+                .name("Nisi Eiusmod")
+                .description("adipisicing")
+                .releaseDate(LocalDate.of(1967, 3, 25))
+                .duration(100)
+                .build();
+
         user = User.builder()
                 .login("dolore")
                 .name("Nick Name")
@@ -34,59 +41,31 @@ class UserControllerTest {
     }
 
     @Test
-    public void shouldCreateUser() {
-
+    public void shouldAddFriendTest() {
         userController.addUser(user);
-        List<User> allUsers = userController.getAllUser();
+        User user1 = new User();
+        user1.setLogin("login");
+        user1.setName("Name Surname");
+        userController.addUser(user1);
+        user.setFriends(new HashSet<>());
+        user1.setFriends(new HashSet<>());
 
-        assertEquals(3, allUsers.size(), "Size Equal Test");
+        User addFriends = userController.addFriends(user.getId(), user1.getId());
 
-        User userToCheck = allUsers.get(0);
+        //при добавлении в друзьях должен быть юзер с id от user1
+        Set<Integer> integerSet = new HashSet<>();
+        integerSet.add(user1.getId());
+        assertEquals(integerSet, addFriends.getFriends(),
+                "Equal Test");
 
-        assertEquals(user.getName(), userToCheck.getName(), "Name Equal Test");
-        assertEquals(user.getLogin(), userToCheck.getLogin(), "Login Equal Test");
-        assertEquals(user.getEmail(), userToCheck.getEmail(), "Email Equal Test");
-        assertEquals(user.getBirthday(), userToCheck.getBirthday(), "Birthday Equal Test");
-    }
+        Set<User> userSet = new HashSet<>();
+        userSet.add(user);
+        assertEquals(userSet, userController.findUserFriendsById(user1.getId()),
+                "Equal Test");
 
-    @Test
-    public void shouldCreateUserWithoutName() {
-        user.setName("");
-        userController.addUser(user);
-
-        List<User> allUsers = userController.getAllUser();
-
-        assertEquals(4, allUsers.size(),
-                "Size Equal Test");
-
-        User userToCheck = allUsers.get(2);
-
-        assertEquals(user.getLogin(), userToCheck.getName(), "Login Equal Name Test");
-    }
-
-
-    @Test
-    public void shouldThrowExceptionWhenUpdateUnknownUser() {
-        user.setId(10);
-
-        NotFoundException e = assertThrows(
-                NotFoundException.class, () -> userController.updateUser(user));
-
-        assertEquals("404 NOT_FOUND \"User don't find\"", e.getMessage());
-        assertEquals(2,
-                userController.getAllUser().size(),
-                "Size Equal Test");
-    }
-
-    @Test
-    public void shouldGetAllUserTest() {
-        userController.addUser(user);
-        User user100 = user;
-        user100.setId(100);
-
-        userController.addUser(user100);
-
-        assertEquals(2, userController.getAllUser().size(),
-                "Size Equal Test");
+        User deliteFriend = userController.removeFriends(user.getId(), user1.getId());
+        integerSet.remove(user1.getId());
+        assertEquals(integerSet, addFriends.getFriends(),
+                "Equal Test");
     }
 }

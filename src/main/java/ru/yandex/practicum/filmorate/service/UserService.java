@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.Set;
 
 @Service
 public interface UserService {
@@ -13,4 +14,14 @@ public interface UserService {
     User addUsers(@Valid User user);
 
     HashMap<Integer, User> getAllUsers();
+
+    User getUserById(int userId);
+
+    Set<User> getFriendsById(int userId);
+
+    User addFriends(int userId, int friendId);
+
+    User removeFriends(int userId, int friendId);
+
+    Set<User> getCommonFriendsById(int userId, int otherId);
 }
