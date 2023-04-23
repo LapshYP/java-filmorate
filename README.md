@@ -11,5 +11,5 @@ Template repository for Filmorate project.
             u.user_email,
             u.user_name,
             u.user_birthday,
-      FROM users u
+     FROM users u
 ~~~
