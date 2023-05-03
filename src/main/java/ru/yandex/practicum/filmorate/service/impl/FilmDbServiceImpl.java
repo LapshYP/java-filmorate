@@ -1,14 +1,19 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import ru.yandex.practicum.filmorate.dao.FilmStorage;
+import ru.yandex.practicum.filmorate.dao.UserStorage;
+import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorageImpl;
+import ru.yandex.practicum.filmorate.dao.impl.UserDbStorageImpl;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorageImpl;
-import ru.yandex.practicum.filmorate.storage.UserStorageImpl;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.Comparator;
@@ -17,23 +22,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Service
+@Service("filmDbService")
 @Validated
-public class FilmServiceImpl implements FilmService {
-    private final FilmStorageImpl filmStorage;
-    private final UserStorageImpl userStorage;
+@Primary
+@RequiredArgsConstructor
+public class FilmDbServiceImpl implements FilmService {
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
+    private static int id = 1;
 
     @Autowired
-    public FilmServiceImpl(FilmStorageImpl filmStorage, UserStorageImpl userStorage) {
+    public FilmDbServiceImpl(FilmDbStorageImpl filmStorage, UserDbStorageImpl userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
 
-    private static int id = 1;
-
     @Override
     public Film getFilmById(int filmId) {
         return filmStorage.getFilmFromRepoById(filmId);
+
     }
 
     @Override
@@ -43,7 +50,7 @@ public class FilmServiceImpl implements FilmService {
             log.error("Film with name = \"{}\" don't find", film.getName());
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Film with name = \"" + film.getName() + "\" don't find");
         } else {
-            filmStorage.addFilmToRepo(film);
+            filmStorage.updateFilm(film);
             return film;
         }
     }
@@ -64,35 +71,33 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film addLike(int filmId, int userId) {
-        Film filmToUpdate = filmStorage.getFilmFromRepoById(filmId);
-        Set<Integer> likes = filmToUpdate.getLikes();
+        Film filmToLike = filmStorage.getFilmFromRepoById(filmId);
+        Set<Integer> likes = filmToLike.getLikes();
         likes.add(userId);
-//       filmToUpdate.setLikes(likes);
-        return filmToUpdate;
+        filmStorage.addFilmLikeToRepo(filmToLike, userId);
+        return filmToLike;
+
     }
 
     @Override
     public Film removeLike(int filmId, int userId) {
-        Film filmToUpdate = filmStorage.getFilmFromRepoById(filmId);
         if (!userStorage.getUsersFromRepo().containsKey(userId)) {
             log.error("a user with such an ID  = \"{}\" is not located", userId);
             throw new NotFoundException(HttpStatus.NOT_FOUND, "a user with such an ID = \"" + userId + "\" is not located");
         } else {
-            Set<Integer> likes = filmToUpdate.getLikes();
-            likes.remove(userId);
-            filmToUpdate.setLikes(likes);
-            return filmToUpdate;
+            int removeLikeFromRepo = filmStorage.removeLikeFromRepo(filmId, userId);
+            System.out.println(removeLikeFromRepo);
+            return null;
         }
+
     }
 
     @Override
     public Set<Film> getPopularFilms(int count) {
-        Set<Film> result;
-        HashMap<Integer, Film> fromRepo = filmStorage.getFilmsFromRepo();
-        result = fromRepo.values().stream()
-                .sorted(Comparator.comparing((Film f) -> f.getLikes().size()).reversed())
+        return filmStorage.getFilmsFromRepo().values().stream()
+                .sorted(Comparator.comparing((Film f) -> f.getRate()))
                 .limit(count)
                 .collect(Collectors.toSet());
-        return result;
     }
+
 }

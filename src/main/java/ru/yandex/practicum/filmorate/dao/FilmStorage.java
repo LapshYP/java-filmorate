@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dao;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -10,4 +10,12 @@ public interface FilmStorage {
     Film getFilmFromRepo(Film film);
 
     HashMap<Integer, Film> getFilmsFromRepo();
+
+    Film updateFilm(Film film);
+
+    Film getFilmFromRepoById(int filmId);
+
+    Film addFilmLikeToRepo(Film filmToLike, int userId);
+
+    int removeLikeFromRepo(int filmId, int userId);
 }
