@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
-import ru.yandex.practicum.filmorate.exception.DubleException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -47,11 +46,7 @@ public class UserDbServiceImpl implements UserService {
         if (user.getName() == null || user.getName().equals("")) {
             user.setName(user.getLogin());
         }
-        try {
-            userStorage.addUserToRepo(user);
-        } catch (NullPointerException e) {
-            throw new DubleException(e.getMessage());
-        }
+        userStorage.addUserToRepo(user);
         return user;
     }
 

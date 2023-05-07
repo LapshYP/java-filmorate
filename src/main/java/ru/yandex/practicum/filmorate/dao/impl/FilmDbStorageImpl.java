@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,17 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     @Override
     public Film addFilmLikeToRepo(Film filmToLike, int userId) {
+
+        String checkQuery = "SELECT COUNT(*) FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
+        int count = jdbcTemplate.queryForObject(checkQuery, new Object[]{filmToLike.getId(), userId}, Integer.class);
+
+        if (count > 0) {
+            throw new DubleException("Like to film '" +
+                    filmToLike.getName() +
+                    "' from user id='" +
+                    userId +
+                    "' already exists");
+        }
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "INSERT INTO LIKES (FILM_ID, USER_ID)" +
                 "SELECT ?, ?" +
@@ -53,16 +65,36 @@ public class FilmDbStorageImpl implements FilmStorage {
             return stmt;
         }, keyHolder);
 
-        boolean likeAdded = keyHolder.getKey() != null;
 
-        if (!likeAdded) {
-            throw new DubleException("Like already exists");
-        }
         return filmToLike;
     }
 
     @Override
     public Film addFilmToRepo(Film film) {
+        String checkQuery = "SELECT count(*) FROM FILMS WHERE FILM_NAME = ? AND FILM_RELEASE_DATE = ? AND FILM_DURATION = ?";
+        int count = jdbcTemplate.queryForObject(checkQuery, new Object[]{film.getName(), film.getReleaseDate(), film.getDuration()}, Integer.class);
+        if (count > 0) {
+            throw new DubleException("Film '" + film.getName() + "' already exists");
+        }
+
+        List<Genre> genres = film.getGenres().stream().distinct().collect(Collectors.toList());
+        List<Genre> incorrectGenres = new ArrayList<>();
+        for (Genre genre : genres) {
+            String checkGenreQuery = "SELECT count(*) FROM GENRES WHERE GENRES.GENRE_ID = ?";
+            int genreCount = jdbcTemplate.queryForObject(checkGenreQuery, new Object[]{genre.getId()}, Integer.class);
+            if (genreCount == 0) {
+                incorrectGenres.add(genre);
+            }
+        }
+        if (!incorrectGenres.isEmpty()) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "The following genres are incorrect: " + incorrectGenres);
+        }
+        if (film.getMpa().getId() == null) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "MPA rating id is required");
+
+        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
         String sqlQuery = "INSERT INTO FILMS (FILM_NAME, FILM_DESCRIPTION, FILM_RELEASE_DATE, "
                 + "FILM_DURATION, FILM_RATE, FILM_MPA)\n"
                 + "SELECT ?, ?, ?, ?, ?, ?\n"
@@ -70,7 +102,6 @@ public class FilmDbStorageImpl implements FilmStorage {
                 + "  SELECT 1\n"
                 + "  FROM FILMS\n"
                 + "  WHERE FILM_NAME = ? AND FILM_RELEASE_DATE = ? AND FILM_DURATION = ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"film_id"});
             stmt.setString(1, film.getName());
@@ -85,12 +116,13 @@ public class FilmDbStorageImpl implements FilmStorage {
             return stmt;
         }, keyHolder);
 
-        film.setId((int) keyHolder.getKey().longValue()); // получаем сгенерированный id из базы данных
+
+        film.setId((int) keyHolder.getKey().longValue());
 
         String queryDelete = "delete from FILM_GENRES where FILM_ID = ?";
         jdbcTemplate.update(queryDelete, film.getId());
 
-        List<Genre> genres = film.getGenres().stream().distinct().collect(
+        List<Genre> genress = film.getGenres().stream().distinct().collect(
                 Collectors.toList());
 
         String sqlQueryForFilmsToGenres = "insert into FILM_GENRES (FILM_ID, genre_id)" +
@@ -98,7 +130,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         jdbcTemplate.batchUpdate(sqlQueryForFilmsToGenres, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                Genre genre = genres.get(i);
+                Genre genre = genress.get(i);
                 ps.setLong(1, film.getId());
                 ps.setLong(2, genre.getId());
             }

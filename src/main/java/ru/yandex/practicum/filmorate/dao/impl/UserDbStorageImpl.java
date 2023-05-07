@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
+import ru.yandex.practicum.filmorate.exception.DubleException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -27,7 +28,17 @@ public class UserDbStorageImpl implements UserStorage {
 
     @Override
     public User addUserToRepo(User user) {
-        String sqlQuery = "insert into Users (USER_LOGIN, USER_EMAIL, USER_NAME, USER_BIRTHDAY) SELECT ?, ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM USERS WHERE USER_LOGIN = ? AND USER_EMAIL = ?)";
+        String checkQuery = "SELECT count(*) FROM USERS WHERE USER_LOGIN = ? AND USER_EMAIL = ?";
+        int count = jdbcTemplate.queryForObject(checkQuery, new Object[] { user.getLogin(), user.getEmail()}, Integer.class);
+        if (count > 0) {
+            throw new DubleException("User '" +
+                    user.getLogin() +
+                    "' already exists");
+        }
+
+        String sqlQuery = "insert into Users (USER_LOGIN, USER_EMAIL, USER_NAME, USER_BIRTHDAY) " +
+                "SELECT ?, ?, ?, ? WHERE NOT EXISTS" +
+                "(SELECT 1 FROM USERS WHERE USER_LOGIN = ? AND USER_EMAIL = ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"user_id"});
@@ -39,6 +50,7 @@ public class UserDbStorageImpl implements UserStorage {
             stmt.setString(6, user.getEmail());
             return stmt;
         }, keyHolder);
+
         user.setId((int) keyHolder.getKey().longValue());
         return user;
     }
@@ -116,13 +128,17 @@ public class UserDbStorageImpl implements UserStorage {
 
         } catch (EmptyResultDataAccessException e) {
             // обработка ситуации, когда пользователя с указанным ID не было найдено
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "User not found");
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "User with id='" +
+                    id +
+                    "' not found");
         }
         return result;
     }
 
 @Override
 public void addToFriends(int id, int friendId) {
+    getUserFromRepoById(id);
+
     String sqlQuery = "INSERT INTO friendships (user_id, friend_id, friendship_status) " +
             "SELECT ?, ?, ? " +
             "WHERE NOT EXISTS (" +
