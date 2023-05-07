@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
+import ru.yandex.practicum.filmorate.exception.DubleException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -20,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,25 +35,41 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     @Override
     public Film addFilmLikeToRepo(Film filmToLike, int userId) {
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        String sqlQuery = "insert into LIKES (FILM_ID, USER_ID)" +
-                "values (?, ?)";
+        String sqlQuery = "INSERT INTO LIKES (FILM_ID, USER_ID)" +
+                "SELECT ?, ?" +
+                "WHERE NOT EXISTS (" +
+                "    SELECT 1" +
+                "    FROM LIKES" +
+                "    WHERE FILM_ID = ? AND USER_ID = ?" +
+                ")";
 
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery);
-            stmt.setLong(1, filmToLike.getId());
-            stmt.setLong(2, userId);
+            stmt.setInt(1, filmToLike.getId());
+            stmt.setInt(2, userId);
+            stmt.setInt(3, filmToLike.getId());
+            stmt.setInt(4, userId);
             return stmt;
         }, keyHolder);
 
+        boolean likeAdded = keyHolder.getKey() != null;
+
+        if (!likeAdded) {
+            throw new DubleException("Like already exists");
+        }
         return filmToLike;
     }
 
     @Override
     public Film addFilmToRepo(Film film) {
-        String sqlQuery = "insert into FILMS (FILM_NAME, FILM_DESCRIPTION, FILM_RELEASE_DATE, FILM_DURATION, FILM_RATE, FILM_MPA ) values (?, ?, ?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO FILMS (FILM_NAME, FILM_DESCRIPTION, FILM_RELEASE_DATE, "
+                + "FILM_DURATION, FILM_RATE, FILM_MPA)\n"
+                + "SELECT ?, ?, ?, ?, ?, ?\n"
+                + "WHERE NOT EXISTS (\n"
+                + "  SELECT 1\n"
+                + "  FROM FILMS\n"
+                + "  WHERE FILM_NAME = ? AND FILM_RELEASE_DATE = ? AND FILM_DURATION = ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"film_id"});
@@ -63,17 +79,40 @@ public class FilmDbStorageImpl implements FilmStorage {
             stmt.setInt(4, film.getDuration());
             stmt.setInt(5, film.getRate());
             stmt.setInt(6, film.getMpa().getId());
+            stmt.setString(7, film.getName());
+            stmt.setDate(8, Date.valueOf(film.getReleaseDate()));
+            stmt.setInt(9, film.getDuration());
             return stmt;
         }, keyHolder);
 
-        if (film.getGenres() != null) {
-            addGenres(film);
-        } else if (film.getGenres() == null) {
-            ArrayList<Genre> genreList = new ArrayList<>();
-            genreList.add(new Genre(0, null));
-            film.setGenres(genreList);
-        }
-        return film;
+        film.setId((int) keyHolder.getKey().longValue()); // получаем сгенерированный id из базы данных
+
+        String queryDelete = "delete from FILM_GENRES where FILM_ID = ?";
+        jdbcTemplate.update(queryDelete, film.getId());
+
+        List<Genre> genres = film.getGenres().stream().distinct().collect(
+                Collectors.toList());
+
+        String sqlQueryForFilmsToGenres = "insert into FILM_GENRES (FILM_ID, genre_id)" +
+                "values (?, ?)";
+        jdbcTemplate.batchUpdate(sqlQueryForFilmsToGenres, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                Genre genre = genres.get(i);
+                ps.setLong(1, film.getId());
+                ps.setLong(2, genre.getId());
+            }
+
+            @Override
+            public int getBatchSize() {
+                return genres.size();
+            }
+        });
+
+        Film filmToSetGenres = film;
+        filmToSetGenres.setGenres(genres);
+        return filmToSetGenres;
+
     }
 
     @Override

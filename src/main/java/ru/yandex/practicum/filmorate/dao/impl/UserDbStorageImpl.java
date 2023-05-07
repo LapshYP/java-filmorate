@@ -27,7 +27,7 @@ public class UserDbStorageImpl implements UserStorage {
 
     @Override
     public User addUserToRepo(User user) {
-        String sqlQuery = "insert into Users (USER_LOGIN, USER_EMAIL, USER_NAME, USER_BIRTHDAY) values (?, ?, ?, ?)";
+        String sqlQuery = "insert into Users (USER_LOGIN, USER_EMAIL, USER_NAME, USER_BIRTHDAY) SELECT ?, ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM USERS WHERE USER_LOGIN = ? AND USER_EMAIL = ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"user_id"});
@@ -35,6 +35,8 @@ public class UserDbStorageImpl implements UserStorage {
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getName());
             stmt.setDate(4, Date.valueOf(user.getBirthday()));
+            stmt.setString(5, user.getLogin());
+            stmt.setString(6, user.getEmail());
             return stmt;
         }, keyHolder);
         user.setId((int) keyHolder.getKey().longValue());
@@ -119,20 +121,26 @@ public class UserDbStorageImpl implements UserStorage {
         return result;
     }
 
-    @Override
-    public void addToFriends(int id, int friendId) {
-        String sqlQuery = "insert into FRIENDSHIPS (USER_ID, FRIEND_ID,FRIENDSHIP_STATUS) values (?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"FRIENDSHIP_ID"});
-            stmt.setInt(1, id);
-            stmt.setInt(2, friendId);
-            stmt.setBoolean(3, true);
+@Override
+public void addToFriends(int id, int friendId) {
+    String sqlQuery = "INSERT INTO friendships (user_id, friend_id, friendship_status) " +
+            "SELECT ?, ?, ? " +
+            "WHERE NOT EXISTS (" +
+            "SELECT 1 FROM friendships WHERE user_id = ? AND friend_id = ? AND friendship_status = ?" +
+            ")";
+    KeyHolder keyHolder = new GeneratedKeyHolder();
+    jdbcTemplate.update(connection -> {
+        PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"USER_ID"});
+        stmt.setInt(1, id);
+        stmt.setInt(2, friendId);
+        stmt.setBoolean(3, true);
+        stmt.setInt(4, id);
+        stmt.setInt(5, friendId);
+        stmt.setBoolean(6, true);
 
-            return stmt;
-        }, keyHolder);
-
-    }
+        return stmt;
+    }, keyHolder);
+}
 
     @Override
     public Set<Integer> getFriends(int userId) {
@@ -148,7 +156,10 @@ public class UserDbStorageImpl implements UserStorage {
     @Override
     public void deleteFriends(int userId, int friendId) {
         String sql = "delete from FRIENDSHIPS where USER_ID = ? and FRIEND_ID = ?";
-        jdbcTemplate.update(sql, userId, friendId);
+        int rowsDeleted = jdbcTemplate.update(sql, userId, friendId);
+        if (rowsDeleted == 0) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND,"Friendship not found with USER_ID=" + userId + " and FRIEND_ID=" + friendId);
+        }
     }
 
     @Override

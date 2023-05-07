@@ -30,4 +30,24 @@ public class ControllerExceptionHandler {
     public Map<String, String> notFoundException(NotFoundException ex) {
         return Map.of("not found exception - ", ex.getMessage());
     }
+
+    @ExceptionHandler({DubleException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> dubleException(DubleException ex) {
+
+        String errorMessage = ex.getMessage() != null ? ex.getMessage() : "the object already exists";
+
+        return Map.of("duble", errorMessage);
+    }
+//    @ExceptionHandler(value = NullPointerException.class)
+//    public ResponseEntity<Object> handleNullPointerException(NullPointerException ex) {
+//        String errorMessage = "\"field id\": \"must not be blank\"";
+//        return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleException(Exception ex, WebRequest request) {
+//        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), new Date());
+//        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 }

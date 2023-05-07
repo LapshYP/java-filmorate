@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorageImpl;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorageImpl;
+import ru.yandex.practicum.filmorate.exception.DubleException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -60,7 +61,12 @@ public class FilmDbServiceImpl implements FilmService {
         if (film.getId() == 0) {
             film.setId(id++);
         }
-        filmStorage.addFilmToRepo(film);
+        try {
+            filmStorage.addFilmToRepo(film);
+        } catch (NullPointerException e) {
+            throw new DubleException(e.getMessage());
+        }
+
         return film;
     }
 
