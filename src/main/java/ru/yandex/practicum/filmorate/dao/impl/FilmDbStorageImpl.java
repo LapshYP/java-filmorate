@@ -21,10 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -244,6 +241,47 @@ public class FilmDbStorageImpl implements FilmStorage {
         return (HashMap<Integer, Film>) filmMap;
     }
 
+    @Override
+    public HashMap<Integer, Film> getFilmsFromRepoWithCount(int count) {
+        String sqlQuery = "SELECT FILMS.FILM_ID, FILM_NAME, FILM_DESCRIPTION, FILM_RELEASE_DATE, " +
+                "FILM_DURATION, FILM_RATE, FILM_MPA, MPA_NAME, COUNT(user_id) as likes " +
+                "FROM FILMS " +
+                "INNER JOIN MPA ON FILM_MPA = MPA.MPA_ID " +
+                "LEFT JOIN LIKES ON FILMS.FILM_ID = LIKES.film_id " +
+                "GROUP BY FILMS.FILM_ID, FILM_NAME, FILM_DESCRIPTION, FILM_RELEASE_DATE, " +
+                "FILM_DURATION, FILM_RATE, FILM_MPA, MPA_NAME " +
+                "ORDER BY likes DESC LIMIT " +
+                count +
+                "";
+        List<Film> allFilms = this.jdbcTemplate.query(
+                sqlQuery,
+                (resultSet, rowNum) -> {
+                    Film film = new Film();
+                    film.setId(Integer.parseInt(resultSet.getString("FILM_ID")));
+                    film.setName(resultSet.getString("FILM_NAME"));
+                    film.setDescription(resultSet.getString("FILM_DESCRIPTION"));
+                    film.setDuration(Integer.parseInt(resultSet.getString("FILM_DURATION")));
+                    film.setReleaseDate(LocalDate.parse(resultSet.getString("FILM_RELEASE_DATE")));
+                    film.setRate(Integer.parseInt(resultSet.getString("FILM_RATE")));
+                    film.setMpa(new MPA(Integer.parseInt(resultSet.getString("FILM_MPA"))));
+                    film.setMpa(new MPA(Integer.parseInt(resultSet.getString("FILM_MPA")), resultSet.getString("MPA_NAME")));
+                    String likesStr = resultSet.getString("likes");
+                    if (likesStr != null) {
+                        Set<Integer> likes = Arrays.stream(likesStr.split(","))
+                                .map(Integer::parseInt)
+                                .collect(Collectors.toSet());
+                        film.setLikes(likes);
+                    }
+                    return film;
+                });
+        for (Film film : allFilms) {
+            if (film != null) {
+                takeGenreFromDb(film);
+            }
+        }
+        Map<Integer, Film> filmMap = allFilms.stream().collect(Collectors.toMap(Film::getId, film -> film));
+        return (HashMap<Integer, Film>) filmMap;
+    }
     @Override
     public int removeLikeFromRepo(int filmId, int userId) {
         String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID=? AND USER_ID=?";

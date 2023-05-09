@@ -17,5 +17,7 @@ public interface FilmStorage {
 
     Film addFilmLikeToRepo(Film filmToLike, int userId);
 
+    HashMap<Integer, Film> getFilmsFromRepoWithCount(int count);
+
     int removeLikeFromRepo(int filmId, int userId);
 }

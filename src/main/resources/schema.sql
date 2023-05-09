@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS friendships
     user_id           INTEGER NOT NULL,
     friend_id         INTEGER NOT NULL,
     friendship_status boolean NOT NULL,
+    PRIMARY KEY (user_id, friend_id),
     CONSTRAINT unique_friendship UNIQUE (user_id, friend_id, friendship_status),
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
     FOREIGN KEY (friend_id) REFERENCES users (user_id) ON DELETE RESTRICT ON UPDATE CASCADE

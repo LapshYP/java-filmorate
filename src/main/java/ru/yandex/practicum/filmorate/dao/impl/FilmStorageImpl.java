@@ -45,6 +45,11 @@ public class FilmStorageImpl implements FilmStorage {
     }
 
     @Override
+    public HashMap<Integer, Film> getFilmsFromRepoWithCount(int count) {
+        return null;
+    }
+
+    @Override
     public int removeLikeFromRepo(int filmId, int userId) {
         return 0;
     }

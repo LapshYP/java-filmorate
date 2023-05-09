@@ -94,9 +94,8 @@ public class FilmDbServiceImpl implements FilmService {
 
     @Override
     public Set<Film> getPopularFilms(int count) {
-        return filmStorage.getFilmsFromRepo().values().stream()
-                .sorted(Comparator.comparing((Film f) -> f.getRate()))
-                .limit(count)
+        return filmStorage.getFilmsFromRepoWithCount(count).values().stream()
+
                 .collect(Collectors.toSet());
     }
 

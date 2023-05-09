@@ -1,7 +1,8 @@
 # java-filmorate
 Template repository for Filmorate project.
 Ссылка на структуру базы данных [dbdiagram.io](https://dbdiagram.io/d/644378a96b31947051028cb1)
-<img alt=”Ссылка на схему” src=”https://i.imgur.com/o9Jvele.png” width =”14” height=”14”>
+<img alt=”Ссылка на схему” src=”https://github.com/LapshYP/java-filmorate/blob/add-database/src/main/resources/dbschema.png” width =”14” height=”14”>
+
 ### Примеры SQL запросов к БД
 
 - Пример запроса для получения всех пользователей
