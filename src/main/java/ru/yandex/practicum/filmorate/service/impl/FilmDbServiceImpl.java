@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,8 +59,8 @@ public class FilmDbServiceImpl implements FilmService {
         if (film.getId() == 0) {
             film.setId(id++);
         }
-         filmStorage.addFilmToRepo(film);
-         return film;
+        filmStorage.addFilmToRepo(film);
+        return film;
     }
 
     @Override
