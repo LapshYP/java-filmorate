@@ -282,9 +282,9 @@ public class FilmDbStorageImpl implements FilmStorage {
         Map<Integer, Film> filmMap = allFilms.stream().collect(Collectors.toMap(Film::getId, film -> film));
         return (HashMap<Integer, Film>) filmMap;
     }
+
     @Override
     public int removeLikeFromRepo(int filmId, int userId) {
-
         String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID=? AND USER_ID=?";
         return jdbcTemplate.update(sqlQuery, filmId, userId);
     }
