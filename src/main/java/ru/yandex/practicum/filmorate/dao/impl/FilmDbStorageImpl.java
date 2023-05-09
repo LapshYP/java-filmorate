@@ -284,6 +284,7 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
     @Override
     public int removeLikeFromRepo(int filmId, int userId) {
+
         String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID=? AND USER_ID=?";
         return jdbcTemplate.update(sqlQuery, filmId, userId);
     }
