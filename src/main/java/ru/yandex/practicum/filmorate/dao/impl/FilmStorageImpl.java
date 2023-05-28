@@ -1,7 +1,8 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -29,11 +30,32 @@ public class FilmStorageImpl implements FilmStorage {
         return filmStore;
     }
 
+
     public Film getFilmFromRepoById(int filmId) {
         Film film = filmStore.get(filmId);
         if (film == null) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Film with this ID don't found");
         }
         return film;
+    }
+
+    @Override
+    public Film addFilmLikeToRepo(Film filmToLike, int userId) {
+        return null;
+    }
+
+    @Override
+    public HashMap<Integer, Film> getFilmsFromRepoWithCount(int count) {
+        return null;
+    }
+
+    @Override
+    public int removeLikeFromRepo(int filmId, int userId) {
+        return 0;
+    }
+
+    @Override
+    public Film updateFilm(Film film) {
+        return null;
     }
 }
